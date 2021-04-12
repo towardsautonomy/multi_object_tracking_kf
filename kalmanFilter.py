@@ -169,12 +169,13 @@ class KalmanFilter(object):
                 if not self.filter_outliers or deviation <= 1.5:
                     mu_next = mu_bar_next + np.dot(kalman_gain, (observation - expected_observation).T)
                     sigma_next = np.dot((np.eye(8, dtype=np.float64) - np.dot(kalman_gain, self.H)), sigma_bar_next)
+                    # update timestamp only if the sample is an inlier
+                    self.tracked_objects[associated_idx]['timestamp'] = timestamp
                 else:
                     mu_next = mu_bar_next
                     sigma_next = sigma_bar_next
 
                 # Update State
-                self.tracked_objects[associated_idx]['timestamp'] = timestamp
                 self.tracked_objects[associated_idx]['state_mu'] = mu_next
                 self.tracked_objects[associated_idx]['state_sigma'] = sigma_next
 
