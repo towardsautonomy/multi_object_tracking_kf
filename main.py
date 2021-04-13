@@ -49,8 +49,12 @@ if __name__ == "__main__":
                 tracked_poses2.append([pose_['x'], pose_['y'], pose_['z'], pose_['yaw']])
                 tracked_states2.append([[pose_['x'], pose_['y'], pose_['z'], pose_['yaw']], pose_['covar']])
 
-            print('[id,class,x,y,z,yaw]: [{},{},{},{},{},{}]'.format(
-                pose_['id'], pose_['class'], pose_['x'], pose_['y'], pose_['z'], pose_['yaw']))
+            print('[id,class]: [{},{}]'.format(pose_['id'], pose_['class']))
+            print('  - [x,y,z,yaw]: [{},{},{},{}]'.format(
+                pose_['x'], pose_['y'], pose_['z'], pose_['yaw']))
+            print('  - [vx,vy,vz,vyaw]: [{},{},{},{}]'.format(
+                pose_['vx'], pose_['vy'], pose_['vz'], pose_['vyaw']))
+
         time.sleep(0.033)
 
     # tear down the kalman filter

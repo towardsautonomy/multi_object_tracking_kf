@@ -185,6 +185,10 @@ class KalmanFilter(object):
                             'y':self.tracked_objects[associated_idx]['state_mu'][1], 
                             'z':self.tracked_objects[associated_idx]['state_mu'][2], 
                             'yaw':self.tracked_objects[associated_idx]['state_mu'][3],
+                            'vx':self.tracked_objects[associated_idx]['state_mu'][4], 
+                            'vy':self.tracked_objects[associated_idx]['state_mu'][5], 
+                            'vz':self.tracked_objects[associated_idx]['state_mu'][6], 
+                            'vyaw':self.tracked_objects[associated_idx]['state_mu'][7],
                             'covar':self.tracked_objects[associated_idx]['state_sigma']}
 
             else:
@@ -200,6 +204,10 @@ class KalmanFilter(object):
                             'y':self.tracked_objects[-1]['state_mu'][1], 
                             'z':self.tracked_objects[-1]['state_mu'][2], 
                             'yaw':self.tracked_objects[-1]['state_mu'][3],
+                            'vx':self.tracked_objects[associated_idx]['state_mu'][4], 
+                            'vy':self.tracked_objects[associated_idx]['state_mu'][5], 
+                            'vz':self.tracked_objects[associated_idx]['state_mu'][6], 
+                            'vyaw':self.tracked_objects[associated_idx]['state_mu'][7],
                             'covar':self.tracked_objects[associated_idx]['state_sigma']}
 
             self.processing = False
@@ -209,7 +217,7 @@ class KalmanFilter(object):
 if __name__ == '__main__':
     kf = KalmanFilter(verbose=True)
 
-    for i in range(10):
+    for i in range(100):
         observations = []
         # measurement
         observation = {'class':'Car', 'x':0.5+i*0.1, 'y':0.3, 'z':2.2, 'yaw':180.0}
@@ -219,8 +227,11 @@ if __name__ == '__main__':
         observations = kf.process(observations)
 
         for observation in observations:
-            print('[id,class,x,y,z,yaw]: [{},{},{},{},{},{}]'.format(
-                observation['id'], observation['class'], observation['x'], observation['y'], observation['z'], observation['yaw']))
+            print('[id,class]: [{},{}]'.format(observation['id'], observation['class']))
+            print('  - [x,y,z,yaw]: [{},{},{},{}]'.format(
+                observation['x'], observation['y'], observation['z'], observation['yaw']))
+            print('  - [vx,vy,vz,vyaw]: [{},{},{},{}]'.format(
+                observation['vx'], observation['vy'], observation['vz'], observation['vyaw']))
         time.sleep(0.033)
 
     # measurement
@@ -228,14 +239,20 @@ if __name__ == '__main__':
     observation = {'class':'Car', 'x':0.5+1.0, 'y':0.3, 'z':2.2, 'yaw':180.0}
     observations = kf.process([observation])
     for observation in observations:
-        print('[id,class,x,y,z,yaw]: [{},{},{},{},{},{}]'.format(
-            observation['id'], observation['class'], observation['x'], observation['y'], observation['z'], observation['yaw']))
+        print('[id,class]: [{},{}]'.format(observation['id'], observation['class']))
+        print('  - [x,y,z,yaw]: [{},{},{},{}]'.format(
+            observation['x'], observation['y'], observation['z'], observation['yaw']))
+        print('  - [vx,vy,vz,vyaw]: [{},{},{},{}]'.format(
+            observation['vx'], observation['vy'], observation['vz'], observation['vyaw']))
 
     # measurement
     time.sleep(0.2)
     observation = {'class':'Car', 'x':0.5+1.1, 'y':0.3, 'z':2.2, 'yaw':180.0}
     observations = kf.process([observation])
     for observation in observations:
-        print('[id,class,x,y,z,yaw]: [{},{},{},{},{},{}]'.format(
-            observation['id'], observation['class'], observation['x'], observation['y'], observation['z'], observation['yaw']))
+        print('[id,class]: [{},{}]'.format(observation['id'], observation['class']))
+        print('  - [x,y,z,yaw]: [{},{},{},{}]'.format(
+            observation['x'], observation['y'], observation['z'], observation['yaw']))
+        print('  - [vx,vy,vz,vyaw]: [{},{},{},{}]'.format(
+            observation['vx'], observation['vy'], observation['vz'], observation['vyaw']))
     kf.teardown()
