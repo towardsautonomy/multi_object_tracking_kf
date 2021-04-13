@@ -102,5 +102,5 @@ if __name__ == "__main__":
     ax.legend(['Drone1', 'Drone2'], fontsize=16)
     ax.view_init(elev=25., azim=-80)
 
-    plt.savefig('tracked_trajectory.png')
+    plt.savefig('media/tracked_trajectory.png')
     plt.show()

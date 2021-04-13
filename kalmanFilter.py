@@ -5,7 +5,7 @@ import sys
 
 class KalmanFilter(object):
 
-    def __init__(self, filter_outliers=True, verbose=False):
+    def __init__(self, filter_outliers=True, patience_ms=0.1, verbose=False):
         self.tracked_objects = []
         self.next_id = -1
 
@@ -22,6 +22,7 @@ class KalmanFilter(object):
         self.filter_outliers = filter_outliers
         self.verbose = verbose
         self.processing = False
+        self.patience_ms = patience_ms
 
         # start the timer thread
         self.thread_ = threading.Thread(target=self.timer_thread)
@@ -74,18 +75,19 @@ class KalmanFilter(object):
                 time.sleep(0.001)
             
             # proceed
-            duration = 0.1 # 100 milliseconds
-            time.sleep(duration) # Sleep
+            time.sleep(self.patience_ms) # Sleep
             
             # iterate through each tracked object
             for i, tracked_obj in enumerate(self.tracked_objects):
                 dt = time.time() - tracked_obj['timestamp']
-                if dt > duration:
+                if dt > self.patience_ms:
                     if self.verbose:
                         print('Removing tracked object [{}] with id: {}'.format(tracked_obj['class'], tracked_obj['id']))
                     del self.tracked_objects[i]
 
     def teardown(self):
+        # wait for '2*patience_ms' to destroy all existing objects
+        time.sleep(2*self.patience_ms)
         if self.verbose:
             print('Tearing down the Kalman Filter.')
 
