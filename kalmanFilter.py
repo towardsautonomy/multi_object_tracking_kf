@@ -5,7 +5,7 @@ import sys
 
 class KalmanFilter(object):
 
-    def __init__(self, filter_outliers=True, patience_ms=0.1, verbose=False):
+    def __init__(self, filter_outliers=True, patience_ms=100., verbose=False):
         self.tracked_objects = []
         self.next_id = -1
 
@@ -22,7 +22,7 @@ class KalmanFilter(object):
         self.filter_outliers = filter_outliers
         self.verbose = verbose
         self.processing = False
-        self.patience_ms = patience_ms
+        self.patience_sec = patience_ms * 1e-3
 
         # start the timer thread
         self.thread_ = threading.Thread(target=self.timer_thread)
@@ -70,24 +70,29 @@ class KalmanFilter(object):
     def timer_thread(self):
         # If the child thread is still running
         while self.thread_is_alive:
+
             # wait if processing new data
             while self.processing:
                 time.sleep(0.001)
-            
-            # proceed
-            time.sleep(self.patience_ms) # Sleep
+            self.processing = True
             
             # iterate through each tracked object
             for i, tracked_obj in enumerate(self.tracked_objects):
                 dt = time.time() - tracked_obj['timestamp']
-                if dt > self.patience_ms:
+                if dt > self.patience_sec:
                     if self.verbose:
-                        print('Removing tracked object [{}] with id: {}'.format(tracked_obj['class'], tracked_obj['id']))
+                        print('Removing tracked object [{}] with id: {} - no update received for {} secs'.format(
+                            tracked_obj['class'], tracked_obj['id'], dt))
                     del self.tracked_objects[i]
 
+            self.processing = False
+
+            # sleep
+            time.sleep(self.patience_sec)
+
     def teardown(self):
-        # wait for '2*patience_ms' to destroy all existing objects
-        time.sleep(2*self.patience_ms)
+        # wait for '2*patience_sec' to destroy all existing objects
+        time.sleep(2*self.patience_sec)
         if self.verbose:
             print('Tearing down the Kalman Filter.')
 
@@ -134,8 +139,12 @@ class KalmanFilter(object):
         measurements: list of dictionary of measurement [class, x, y, z, yaw]
         """ 
         tracked_objects = []
-        for measurement in measurements:   
+        for measurement in measurements:    
+            # wait if processing new data
+            while self.processing:
+                time.sleep(0.001)
             self.processing = True
+
             timestamp = time.time()
             tracked_obj = None
             # find association
